@@ -1,6 +1,8 @@
 package json
 
-import . "github.com/valyala/fastjson"
+import (
+	. "github.com/valyala/fastjson"
+)
 
 /**
 * golang-sample源代码，版权归锦翰科技（深圳）有限公司所有。
