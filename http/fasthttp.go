@@ -188,6 +188,16 @@ func Error(ctx *fasthttp.RequestCtx, msg string, statusCode int) {
 	ctx.SetBodyString(msg)
 }
 
+func Header(ctx *fasthttp.RequestCtx, key, defaultV string) (string, bool) {
+	b := ctx.Request.Header.Peek(key)
+
+	if b == nil {
+		return "", false
+	}
+
+	return string(b), true
+}
+
 func GetHeader(ctx *fasthttp.RequestCtx, key, defaultV string) string {
 	v := string(ctx.Request.Header.Peek(key))
 
@@ -216,6 +226,16 @@ func GetToken(ctx *fasthttp.RequestCtx) string {
 	} else {
 		return strings.Replace(token, "Bearer ", "", 1)
 	}
+}
+
+func Param(ctx *fasthttp.RequestCtx, key string) (string, bool) {
+	b := ctx.FormValue(key)
+
+	if b == nil {
+		return "", false
+	}
+
+	return string(b), true
 }
 
 func Params(ctx *fasthttp.RequestCtx) map[string]any {
