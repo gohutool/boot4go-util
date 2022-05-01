@@ -17,13 +17,7 @@ import (
 * 修改历史 : 1. [2022/5/1 10:21] 创建文件 by LongYong
 */
 
-func GenToken(encode TokenSubjectEncode, issuer string, secretKey string, expire time.Duration) string {
-
-	var subject string
-
-	if encode != nil {
-		subject = encode()
-	}
+func GenToken(subject string, issuer string, secretKey string, expire time.Duration) string {
 
 	signKey := []byte(secretKey)
 	claims := &jwt.StandardClaims{
@@ -39,7 +33,6 @@ func GenToken(encode TokenSubjectEncode, issuer string, secretKey string, expire
 	return ss
 }
 
-type TokenSubjectEncode func() string
 type TokenSubjectDecode func(subject string) (any, error)
 
 type TokenInvalidError struct {
