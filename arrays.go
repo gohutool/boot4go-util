@@ -27,3 +27,23 @@ func Reduce[T any, R any](source []T, fn func(one T) (R, bool)) []R {
 
 	return rtn
 }
+
+func CopyArray[T any](src []any, dest []T) []T {
+	if src == nil {
+		return nil
+	}
+
+	if dest == nil {
+		dest = make([]T, 0, len(src))
+	}
+
+	for _, v := range src {
+		if v == nil {
+			dest = append(dest, nil)
+		} else {
+			dest = append(dest, v.(T))
+		}
+	}
+
+	return dest
+}
