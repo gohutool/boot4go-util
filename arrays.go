@@ -28,7 +28,7 @@ func Reduce[T any, R any](source []T, fn func(one T) (R, bool)) []R {
 	return rtn
 }
 
-func CopyArray[T struct{}](src []any, dest []T) []T {
+func CopyArray[T any](src []any, dest []T) []T {
 	if src == nil {
 		return nil
 	}
