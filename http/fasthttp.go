@@ -1,9 +1,12 @@
 package http
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	fastjson "github.com/gohutool/boot4go-fastjson"
 	"github.com/valyala/fasthttp"
+	"strings"
 )
 
 /**
@@ -165,4 +168,83 @@ func (r pageResultDataBuilder) Build() pageResultData {
 	}
 
 	return pd
+}
+
+var DEFAULT_CONTENTTYPE = []byte("application/json;charset=utf-8")
+
+func Error(ctx *fasthttp.RequestCtx, msg string, statusCode int) {
+	ctx.Response.Header.Set("Content-type", "application/json;charset=utf-8")
+	var oh = &fasthttp.ResponseHeader{}
+	ctx.Response.Header.CopyTo(oh)
+
+	ctx.Response.Reset()
+	oh.CopyTo(&ctx.Response.Header)
+
+	//ctx.Response.Header.Set("Content-type", "application/json;charset=utf-8")
+	//ctx.Response.Header.AppendBytes(b)
+	//ctx.Error(msg, statusCode)
+	ctx.SetStatusCode(statusCode)
+	ctx.SetContentTypeBytes(DEFAULT_CONTENTTYPE)
+	ctx.SetBodyString(msg)
+}
+
+func GetHeader(ctx *fasthttp.RequestCtx, key, defaultV string) string {
+	v := string(ctx.Request.Header.Peek(key))
+
+	if len(v) == 0 || len(strings.TrimSpace(v)) == 0 {
+		return defaultV
+	} else {
+		return v
+	}
+}
+
+func GetParams(ctx *fasthttp.RequestCtx, key, defaultV string) string {
+
+	v := string(ctx.FormValue(key))
+
+	if len(v) == 0 || len(strings.TrimSpace(v)) == 0 {
+		return defaultV
+	} else {
+		return v
+	}
+}
+
+func GetToken(ctx *fasthttp.RequestCtx) string {
+	token := GetHeader(ctx, "authorization", "")
+	if len(token) == 0 {
+		return token
+	} else {
+		return strings.Replace(token, "Bearer ", "", 1)
+	}
+}
+
+func Params(ctx *fasthttp.RequestCtx) map[string]any {
+	rtn := make(map[string]any)
+
+	ctx.PostArgs().VisitAll(func(key, value []byte) {
+		rtn[string(key)] = string(value)
+	})
+
+	ctx.QueryArgs().VisitAll(func(key, value []byte) {
+		rtn[string(key)] = string(value)
+	})
+
+	return rtn
+}
+
+func JsonBody2Object(ctx *fasthttp.RequestCtx, obj any) error {
+	s := ctx.PostBody()
+	return unmarshal(s, obj)
+}
+
+func unmarshal(b []byte, obj any) error {
+	decoder := json.NewDecoder(bytes.NewReader(b))
+	decoder.UseNumber()
+	return decoder.Decode(obj)
+
+}
+
+func JsonBodyUnmarshalObject[T fastjson.Unmarshalable](ctx *fasthttp.RequestCtx, obj T) error {
+	s := string(ctx.PostBody())
+	return fastjson.UnmarshalObject(s, obj)
 }

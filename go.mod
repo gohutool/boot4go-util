@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gohutool/boot4go-fastjson v1.0.7
 	github.com/valyala/fasthttp v1.36.0
 )
 
