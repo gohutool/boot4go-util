@@ -39,7 +39,7 @@ func CopyArray[T any](src []any, dest []T) []T {
 
 	for _, v := range src {
 		if v == nil {
-			dest = append(dest, nil)
+			dest = append(dest, T{})
 		} else {
 			dest = append(dest, v.(T))
 		}
