@@ -69,3 +69,12 @@ func GuessIP(remote string) *string {
 
 	return &(strings.Split(conn.LocalAddr().String(), ":")[0])
 }
+
+// ReplaceIP 获取连接远程的本地ip
+func ReplaceIP(address, ip string) string {
+	s := strings.Split(address, ":")
+
+	s[0] = ip
+
+	return strings.Join(s, ":")
+}
