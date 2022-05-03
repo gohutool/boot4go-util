@@ -2,6 +2,7 @@ package util4go
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -320,4 +321,13 @@ func ReplaceParameterWithKeyValue(str string, keyAndValue map[string]string) str
 	}
 
 	return str
+}
+
+func RandRune() rune {
+	return rune(rand.Intn(25) + int('a'))
+}
+
+func RandRune2(s, e rune) rune {
+
+	return rune(rand.Intn(int(e)-int(s)) + int(s))
 }
