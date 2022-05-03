@@ -2,6 +2,8 @@ package path
 
 import (
 	"fmt"
+	util4go "github.com/gohutool/boot4go-util"
+	"math/rand"
 	"path"
 	"runtime"
 	"testing"
@@ -103,14 +105,189 @@ func init() {
 			match: "*", sample: string(idx), isMatch: true, isStd: true, error: false,
 		})
 	}
+	for idx := 0; idx < 10; idx++ {
+		v := ""
+		for i := 0; i < 3; i++ {
+			v = v + string(RandRune())
+		}
+		CaseSample = append(CaseSample, TestCase{
+			match: "*", sample: v, isMatch: true, isStd: true, error: false,
+		})
+	}
 
 	CaseSample = append(CaseSample, TestCase{
 		match: "*", sample: "/", isMatch: false, isStd: true, error: false,
 	})
-	for idx := 0; idx < 4; idx++ {
+	for idx := 2; idx < 4; idx++ {
 		CaseSample = append(CaseSample, TestCase{
-			match: "*", sample: "", isMatch: true, isStd: true, error: false,
+			match: "*", sample: "/" + util4go.LeftPad("a", idx, RandRune()), isMatch: false, isStd: true, error: false,
 		})
+	}
+	CaseSample = append(CaseSample, TestCase{
+		match: "/*", sample: "/", isMatch: true, isStd: true, error: false,
+	})
+	for idx := 2; idx < 4; idx++ {
+		CaseSample = append(CaseSample, TestCase{
+			match: "/*", sample: "/" + util4go.LeftPad("a", idx, RandRune()), isMatch: true, isStd: true, error: false,
+		})
+	}
+
+	for idx := 0; idx < 10; idx++ {
+		v := "/"
+		for i := 0; i < 3; i++ {
+			v = v + string(RandRune())
+		}
+		CaseSample = append(CaseSample, TestCase{
+			match: "/*", sample: v, isMatch: true, isStd: true, error: false,
+		})
+	}
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "*c", sample: "abc", isMatch: true, isStd: true, error: false,
+	})
+
+	for idx := 1; idx < 4; idx++ {
+		CaseSample = append(CaseSample, TestCase{
+			match: "*c", sample: util4go.LeftPad("c", idx, RandRune()), isMatch: true, isStd: true, error: false,
+		})
+	}
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "*c", sample: util4go.RightPad("c", 2, RandRune()) + "/", isMatch: false, isStd: true, error: false,
+	})
+	CaseSample = append(CaseSample, TestCase{
+		match: "*c", sample: "/" + util4go.RightPad("c", 2, RandRune()), isMatch: false, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "a*/b", sample: "abc/b", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "a*/b", sample: "a/c/b", isMatch: false, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "a*b*c*d*e*", sample: "axbxcxdxe", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "a*b*/a", sample: "axbxxxx/a", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[c]", sample: "abc", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[b-d]", sample: "abc", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[b-d]", sample: "abf", isMatch: false, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[^c]", sample: "abc", isMatch: false, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[^b-d]", sample: "abf", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[^b-d]", sample: "abf", isMatch: true, isStd: true, error: false,
+	})
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "*.log", sample: "a/a/a.log", isMatch: false, isStd: false, error: false,
+	})
+	CaseSample = append(CaseSample, TestCase{
+		match: "**/*.log", sample: "a/a/a.log", isMatch: true, isStd: false, error: false,
+	})
+	CaseSample = append(CaseSample, TestCase{
+		match: "[a-b-d]", sample: "a", isMatch: true, isStd: false, error: false,
+	})
+	CaseSample = append(CaseSample, TestCase{
+		match: "[a-bb-d]*", sample: "d", isMatch: true, isStd: false, error: false,
+	})
+	CaseSample = append(CaseSample, TestCase{
+		match: "[a-be-g]*", sample: "f", isMatch: true, isStd: false, error: false,
+	})
+	CaseSample = append(CaseSample, TestCase{
+		match: "[a-be-g]*", sample: "c", isMatch: false, isStd: false, error: false,
+	})
+
+	for idx := 0; idx < 10; idx++ {
+		CaseSample = append(CaseSample, TestCase{
+			match: "[a-fo-z]*", sample: string(RandRune2('a', 'f')) + string(RandRune()) + string(RandRune()),
+			isMatch: true, isStd: false, error: false,
+		})
+	}
+
+	for idx := 0; idx < 10; idx++ {
+		CaseSample = append(CaseSample, TestCase{
+			match: "[a-fo-z]*", sample: string(RandRune2('o', 'z')) + string(RandRune()) + string(RandRune()),
+			isMatch: true, isStd: false, error: false,
+		})
+	}
+
+	for idx := 0; idx < 10; idx++ {
+		CaseSample = append(CaseSample, TestCase{
+			match: "[a-fo-z]*", sample: string(RandRune2('g', 'm')) + string(RandRune()) + string(RandRune()),
+			isMatch: false, isStd: false, error: false,
+		})
+	}
+
+	CaseSample = append(CaseSample, TestCase{
+		match: "ab[!c]", sample: "abc", isMatch: false, isStd: false, error: false,
+	})
+
+	for idx := 0; idx < 10; idx++ {
+		CaseSample = append(CaseSample, TestCase{
+			match: "ab[!c]", sample: "ab" + string(RandRune2('d', 'z')), isMatch: true, isStd: false, error: false,
+		})
+	}
+}
+
+func RandRune() rune {
+	return rune(rand.Intn(25) + int('a'))
+}
+
+func RandRune2(s, e rune) rune {
+
+	return rune(rand.Intn(int(e)-int(s)) + int(s))
+}
+
+func TestCaseMatch(t *testing.T) {
+
+	t.Logf("TestCase : %v", len(CaseSample))
+
+	for idx, tt := range CaseSample {
+		// Since Match() always uses "/" as the separator, we
+		// don't need to worry about the tt.testOnDisk flag
+		matchRun(t, idx, tt)
+	}
+}
+
+func matchRun(t *testing.T, idx int, tt TestCase) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("#%v. Match(%#q, %#q) panicked: %#v", idx, tt.match, tt.sample, r)
+		}
+	}()
+
+	// Match() always uses "/" as the separator
+	matched, err := Match(tt.match, tt.sample)
+	if matched != tt.isMatch || (err != nil && !tt.error) {
+		t.Errorf("#%v. Match(%#q, %#q) = %v, %v. but expect %v, %v", idx, tt.match, tt.sample, matched, err, tt.isMatch, err)
+	}
+
+	if tt.isStd {
+		stdOk, stdErr := path.Match(tt.match, tt.sample)
+		if matched != stdOk || !compareErrors(err, stdErr) {
+			t.Errorf("#%v. path.Match(%#q, %#q) = %v, %v. but expect %v, %v", idx, tt.match, tt.sample, matched, err, stdOk, err)
+		}
 	}
 }
 

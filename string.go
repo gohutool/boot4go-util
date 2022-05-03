@@ -207,6 +207,22 @@ func BuildString(a ...any) string {
 	return fmt.Sprint(a...)
 }
 
+func RightPad(str string, limit int, placeholder rune) string {
+	len := limit - len(str)
+	if len >= limit {
+		return str
+	}
+
+	arr := make([]any, 0, len)
+	arr = append(arr, str)
+
+	for idx := 0; idx < len; idx++ {
+		arr = append(arr, string(placeholder))
+	}
+
+	return BuildString(arr...)
+}
+
 func LeftPad(str string, limit int, placeholder rune) string {
 	len := limit - len(str)
 	if len >= limit {
