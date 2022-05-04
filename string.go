@@ -377,7 +377,7 @@ func (rp *regExpPool) ConvertRegExpWithFormat(src, pattern, format string) (stri
 	result := regExp.FindStringSubmatch(src)
 
 	if len(result) == 0 {
-		return format, nil
+		return format, RegExpError{}
 	}
 
 	//m := make(map[string]string)
