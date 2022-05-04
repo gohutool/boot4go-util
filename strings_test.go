@@ -123,3 +123,14 @@ func BenchmarkTest(b *testing.B) {
 		}
 	}
 }
+
+func TestRegExp(t *testing.T) {
+	buf := "/api/bbb/cccc/dddd/aaa.html"
+	reg := RegExpPool.GetRegExp(`/api/([^/]*)/([\s\S]*$)`)
+
+	result := reg.FindStringSubmatch(buf)
+	//过滤<></>
+	for _, text := range result {
+		fmt.Printf("text =%q \n", text)
+	}
+}
