@@ -67,7 +67,13 @@ func GuessIP(remote string) *string {
 		return nil
 	}
 
-	return &(strings.Split(conn.LocalAddr().String(), ":")[0])
+	add := &(strings.Split(conn.LocalAddr().String(), ":")[0])
+
+	if *add == "[::1]" {
+		*add = "localhost"
+	}
+
+	return add
 }
 
 // ReplaceIP 获取连接远程的本地ip
