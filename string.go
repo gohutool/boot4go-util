@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 /**
@@ -330,4 +331,73 @@ func RandRune() rune {
 func RandRune2(s, e rune) rune {
 
 	return rune(rand.Intn(int(e)-int(s)) + int(s))
+}
+
+type regExpPool map[string]*regexp.Regexp
+
+var regExpPoolLock = sync.RWMutex{}
+var RegExpPool = make(regExpPool)
+var regExpPool_MaxSize = 0
+
+func (rp *regExpPool) MaxSize(maxsize int) {
+	regExpPool_MaxSize = maxsize
+}
+
+func (rp *regExpPool) GetRegExp(exp string) *regexp.Regexp {
+	regExpPoolLock.RLock()
+	if r, ok := RegExpPool[exp]; ok {
+		defer regExpPoolLock.RUnlock()
+		return r
+	} else {
+		regExpPoolLock.RUnlock()
+
+		return func() *regexp.Regexp {
+			regExpPoolLock.Lock()
+			defer regExpPoolLock.Unlock()
+			reg := regexp.MustCompile(exp)
+			RegExpPool[exp] = reg
+			return reg
+		}()
+	}
+}
+
+type RegExpError struct {
+}
+
+func (e RegExpError) Error() string {
+	return "RegExpError"
+}
+
+func (rp *regExpPool) ConvertRegExpWithFormat(src, pattern, format string) (string, error) {
+	regExp := rp.GetRegExp(pattern)
+	if regExp == nil {
+		return "", RegExpError{}
+	}
+
+	result := regExp.FindStringSubmatch(src)
+
+	if len(result) == 0 {
+		return format, nil
+	}
+
+	//m := make(map[string]string)
+	//for idx, text := range result {
+	//	m[strconv.Itoa(idx)] = text
+	//}
+	//
+	//return ReplaceParameterValue(format, m), nil
+
+	for idx, text := range result {
+		b := make([]byte, 0, len(text)+4)
+		b = append(b, byte('{'))
+		b = append(b, []byte(strconv.Itoa(idx))...)
+		b = append(b, byte('}'))
+
+		format = strings.ReplaceAll(format, string(b), text)
+
+		//format = strings.ReplaceAll(format, fmt.Sprintf("{%d}", idx), text)
+	}
+
+	return format, nil
+
 }
