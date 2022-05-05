@@ -93,7 +93,7 @@ func ReplacePort(address, port string) string {
 	if len(s) == 1 {
 		s = append(s, port)
 	} else {
-		s[0] = port
+		s[1] = port
 	}
 
 	return strings.Join(s, ":")
