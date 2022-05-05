@@ -268,3 +268,32 @@ func JsonBodyUnmarshalObject[T fastjson.Unmarshalable](ctx *fasthttp.RequestCtx,
 	s := string(ctx.PostBody())
 	return fastjson.UnmarshalObject(s, obj)
 }
+
+type RequestHandlerChain struct {
+	chain []RequestChainHandler
+}
+
+type RequestChainHandler func(next fasthttp.RequestHandler) fasthttp.RequestHandler
+
+func (c *RequestHandlerChain) Add(handler RequestChainHandler) *RequestHandlerChain {
+	c.chain = append(c.chain, handler)
+	return c
+}
+
+func (c *RequestHandlerChain) Then(handler fasthttp.RequestHandler) fasthttp.RequestHandler {
+	wrap := fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+	})
+
+	for _, one := range c.chain {
+		wrap = one(wrap)
+	}
+
+	if handler == nil {
+		return wrap
+	} else {
+		return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+			wrap(ctx)
+			handler(ctx)
+		})
+	}
+}
