@@ -47,3 +47,9 @@ func NewInstanceValue(t reflect.Type) reflect.Value {
 	rtn := reflect.New(t)
 	return rtn
 }
+
+func Copy[T any](src *T) *T {
+	t := *src
+	t1 := &t
+	return t1
+}

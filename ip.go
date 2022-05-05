@@ -69,9 +69,11 @@ func GuessIP(remote string) *string {
 
 	add := &(strings.Split(conn.LocalAddr().String(), ":")[0])
 
-	if *add == "[::1]" {
-		*add = "localhost"
-	}
+	//if *add == "[::1]" || *add == "::1" || *add == "[::]" || *add == "::" {
+	//	*add = "localhost"
+	//}
+
+	*add = IP(*add)
 
 	return add
 }
@@ -83,4 +85,21 @@ func ReplaceIP(address, ip string) string {
 	s[0] = ip
 
 	return strings.Join(s, ":")
+}
+
+func IP(ip string) string {
+	if ip == "[::1]" || ip == "::1" || ip == "[::]" || ip == "::" {
+		ip = "localhost"
+	}
+	return ip
+}
+
+func SplitHostPort(address string) (host, port string, err error) {
+	h, p, e := net.SplitHostPort(address)
+
+	if e != nil {
+		return h, p, e
+	}
+
+	return IP(h), p, e
 }
