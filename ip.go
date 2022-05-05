@@ -87,6 +87,18 @@ func ReplaceIP(address, ip string) string {
 	return strings.Join(s, ":")
 }
 
+func ReplacePort(address, port string) string {
+	s := strings.Split(address, ":")
+
+	if len(s) == 1 {
+		s = append(s, port)
+	} else {
+		s[0] = port
+	}
+
+	return strings.Join(s, ":")
+}
+
 func IP(ip string) string {
 	if ip == "[::1]" || ip == "::1" || ip == "[::]" || ip == "::" {
 		ip = "localhost"

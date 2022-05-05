@@ -21,4 +21,6 @@ func TestSyncMap(t *testing.T) {
 	s := GuessIP("192.168.56.101:3306")
 
 	fmt.Println(ReplaceIP(":9999", *s))
+
+	fmt.Println(ReplacePort("localhost", "1000"))
 }
