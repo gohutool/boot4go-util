@@ -2,7 +2,9 @@ package util4go
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
+	"unsafe"
 )
 
 /**
@@ -52,4 +54,25 @@ func Copy[T any](src *T) *T {
 	t := *src
 	t1 := &t
 	return t1
+}
+
+func SetUnExportFieldValue[T any](obj *T, field string, data any) (rtnErr error) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			rtnErr = errors.New(fmt.Sprintf("%v", err))
+		}
+	}()
+
+	v := reflect.ValueOf(obj)
+
+	fieldValue := v.Elem().FieldByName(field)
+
+	if !fieldValue.IsValid() {
+		return errors.New("Not found \"" + field + "\"")
+	}
+
+	reflect.NewAt(fieldValue.Type(), unsafe.Pointer(fieldValue.UnsafeAddr())).Elem().Set(reflect.ValueOf(data))
+
+	return nil
 }
