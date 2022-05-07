@@ -23,4 +23,46 @@ func TestSyncMap(t *testing.T) {
 	fmt.Println(ReplaceIP(":9999", *s))
 
 	fmt.Println(ReplacePort("localhost", "1000"))
+
+	if a, p, err := SplitHostPort("localhost"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v\n", a, p)
+	}
+
+	if a, p, q, err := ParseURL("http://localhost:90?asdfasdf"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v,%v\n", a, p, q)
+	}
+
+	if a, p, q, err := ParseURL("://localhost:90?asdfasdf"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v,%v\n", a, p, q)
+	}
+
+	if a, p, q, err := ParseURL("https://localhost:90?asdfasdf"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v,%v\n", a, p, q)
+	}
+
+	if a, p, q, err := ParseURL("localhost:90"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v,%v\n", a, p, q)
+	}
+
+	if a, p, q, err := ParseURL("localhost:90?"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v,%v\n", a, p, q)
+	}
+
+	if a, p, q, err := ParseURL("http://localhost:90?"); err != nil {
+		fmt.Printf("%v\n", err)
+	} else {
+		fmt.Printf("%v,%v,%v\n", a, p, q)
+	}
 }

@@ -1,7 +1,9 @@
 package util4go
 
 import (
+	"errors"
 	"net"
+	"regexp"
 	"strings"
 )
 
@@ -110,8 +112,47 @@ func SplitHostPort(address string) (host, port string, err error) {
 	h, p, e := net.SplitHostPort(address)
 
 	if e != nil {
+		if strings.Index(address, ":") < 0 {
+			return address, "80", nil
+		}
 		return h, p, e
 	}
 
 	return IP(h), p, e
+}
+
+var _urlExp *regexp.Regexp
+var _urlExp2 *regexp.Regexp
+
+func init() {
+	_urlExp = RegExpPool.GetRegExp(`([^:]*)://([^?]*)\??([\s\S]*)`)
+	_urlExp2 = RegExpPool.GetRegExp(`([^?]*)\??([\s\S]*)`)
+}
+
+func ParseURL(url string) (schema, host, query string, rtnErr error) {
+	var s, h, q string
+	if strings.Index(url, `://`) < 0 {
+		s = "http"
+		rtn := _urlExp2.FindStringSubmatch(url)
+		if len(rtn) >= 3 {
+			h = rtn[1]
+			q = rtn[2]
+		} else {
+			return "", "", "", errors.New("parse error " + url)
+		}
+	} else {
+		rtn := _urlExp.FindStringSubmatch(url)
+		if len(rtn) >= 4 {
+			s = rtn[1]
+			h = rtn[2]
+			q = rtn[3]
+			if IsEmpty(s) {
+				s = "http"
+			}
+		} else {
+			return "", "", "", errors.New("parse error " + url)
+		}
+	}
+
+	return s, h, q, nil
 }
