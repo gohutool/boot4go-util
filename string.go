@@ -368,6 +368,16 @@ func (e RegExpError) Error() string {
 	return "RegExpError"
 }
 
+func (rp *regExpPool) FindStringSubmatch(src, pattern string) ([]string, error) {
+	regExp := rp.GetRegExp(pattern)
+
+	if regExp == nil {
+		return nil, RegExpError{}
+	}
+
+	return regExp.FindStringSubmatch(src), nil
+}
+
 func (rp *regExpPool) ConvertRegExpWithFormat(src, pattern, format string) (string, error) {
 	regExp := rp.GetRegExp(pattern)
 	if regExp == nil {
