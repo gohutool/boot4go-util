@@ -166,3 +166,13 @@ func ReplaceAt[T any](list []T, idx int, t T) []T {
 
 	return rtn
 }
+
+func Reverse[T any](source []T) []T {
+	var rtn []T
+
+	for idx := len(source) - 1; idx >= 0; idx-- {
+		rtn = append(rtn, source[idx])
+	}
+
+	return rtn
+}
