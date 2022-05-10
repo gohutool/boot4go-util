@@ -14,6 +14,65 @@ import "strconv"
 * 修改历史 : 1. [2022/5/1 09:57] 创建文件 by LongYong
 */
 
+type Keyable interface {
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | complex64 | complex128 | string
+}
+
+func Stream[T any](source []T, fn func(one T)) {
+	for _, o := range source {
+		fn(o)
+	}
+}
+
+func GroupBy[T any, K Keyable](source []T, fn func(one T) K) map[K][]T {
+	rtn := make(map[K][]T)
+
+	Stream(source, func(one T) {
+		key := fn(one)
+
+		list, _ := rtn[key]
+		list = append(list, one)
+		rtn[key] = list
+	})
+
+	return rtn
+}
+
+func Collect[T any, V any](source []T, fn func(one T) V) []V {
+	var rtn []V
+
+	Stream(source, func(one T) {
+		rtn = append(rtn, fn(one))
+	})
+
+	return rtn
+}
+
+func MapStream[T any, K Keyable](source map[K]T, fn func(K, T)) {
+	for k, t := range source {
+		fn(k, t)
+	}
+}
+
+func Values[T any, K Keyable](source map[K]T) []T {
+	var rtn []T
+	MapStream(source, func(k K, t T) {
+		rtn = append(rtn, t)
+	})
+	return rtn
+}
+
+func Map[T any, K Keyable](source []T, fn func(T) K) map[K]T {
+	rtn := make(map[K]T)
+
+	Stream(source, func(one T) {
+		key := fn(one)
+		rtn[key] = one
+	})
+
+	return rtn
+}
+
 func Reduce[T any, R any](source []T, fn func(one T) (R, bool)) []R {
 	if source == nil {
 		return nil
