@@ -1,6 +1,7 @@
 package util4go
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"reflect"
@@ -410,4 +411,54 @@ func (rp *regExpPool) ConvertRegExpWithFormat(src, pattern, format string) (stri
 
 	return format, nil
 
+}
+
+func GetInt(s string) (int64, error) {
+
+	if rtn, err := strconv.ParseInt(s, 10, 64); err == nil {
+		return rtn, nil
+	} else {
+		return 0, err
+	}
+
+}
+
+func GetUint(s string) (uint64, error) {
+
+	if rtn, err := strconv.ParseUint(s, 10, 64); err == nil {
+		return rtn, nil
+	} else {
+		return 0, err
+	}
+
+}
+func GetFloat(s string) (float64, error) {
+
+	if rtn, err := strconv.ParseFloat(s, 10); err == nil {
+		return rtn, nil
+	} else {
+		return 0, err
+	}
+
+}
+
+func GetBool(s string) (bool, error) {
+
+	if IsEmpty(s) {
+		return false, errors.New("Null")
+	}
+
+	if s == "true" || s == "True" || s == "On" || s == "on" || s == "checked" || s == "selected" {
+		return true, nil
+	} else {
+		if rtn, err := strconv.ParseBool(s); err == nil {
+			return rtn, nil
+		} else {
+			if rtn, err := strconv.Atoi(s); err == nil {
+				return rtn > 0, nil
+			} else {
+				return false, errors.New("No bool " + err.Error())
+			}
+		}
+	}
 }
