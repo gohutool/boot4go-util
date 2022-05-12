@@ -57,6 +57,8 @@ func QueryCount(db *sql.DB, query string, args ...any) int64 {
 		return 0
 	}
 
+	defer rs.Close()
+
 	if !rs.Next() {
 		return 0
 	}
