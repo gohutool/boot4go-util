@@ -46,6 +46,30 @@ func QueryResultSet(db *sql.DB, query string, args ...any) (*resultSet, error) {
 	return ResultSet(rows)
 }
 
+func QueryCount(db *sql.DB, query string, args ...any) int64 {
+	rs, err := QueryResultSet(db, query, args...)
+
+	if err != nil {
+		return 0
+	}
+
+	if rs == nil {
+		return 0
+	}
+
+	if !rs.Next() {
+		return 0
+	}
+
+	c := rs.GetInt(1)
+
+	if c == nil {
+		return 0
+	}
+
+	return *c
+}
+
 func ResultSet(rows *sql.Rows) (*resultSet, error) {
 	column, err := rows.Columns()
 
@@ -146,6 +170,10 @@ type resultSet struct {
 
 func (rs *resultSet) GetMeta() ResultSetMetaData {
 	return *rs.metaData
+}
+
+func (rs *resultSet) Close() {
+	rs.rows.Close()
 }
 
 func (rs *resultSet) Next() bool {
