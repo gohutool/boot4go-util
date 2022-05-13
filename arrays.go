@@ -192,7 +192,9 @@ func GetMapValue[K Keyable, T any](m map[K]T, key K) T {
 		return v
 	}
 
-	return nil
+	var v = new(T)
+
+	return *v
 }
 
 func GetMapValue2[K Keyable, T any](m map[K]T, key K, defaultValue T) T {

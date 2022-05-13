@@ -22,8 +22,8 @@ func TestArrayInsertAt(t *testing.T) {
 
 	println(InsertAt(str, -1, 'T'))
 	println(InsertAt(str, -2, 'R'))
-	println(InsertAt(str, 11, 'W'))
 	println(InsertAt(str, 10, 'W'))
+	println(InsertAt(str, 9, 'W'))
 	println(InsertAt(str, 0, 'T'))
 	println(InsertAt(str, 1, 'T'))
 
