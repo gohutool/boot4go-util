@@ -423,7 +423,7 @@ func (d *DBPlus) QueryOne(query string, args ...any) (map[string]string, error) 
 	for idx, column := range rs.metaData.column {
 		v := rs.data[0][idx]
 		if v != nil {
-			rtn[column] = v.(string)
+			rtn[column] = *v
 		}
 
 	}
@@ -480,21 +480,38 @@ func New(rows *sql.Rows) (ResultSet, error) {
 	}
 
 	columnSize := len(meta.column)
-	var datas [][]any
+	var datas [][]*string
+	current := make([]any, columnSize)
 
 	for rows.Next() {
-		current := make([]any, columnSize)
+
+		data := make([]*string, 0, columnSize)
 
 		for i := 0; i < columnSize; i++ {
-			var one *string
-			current[i] = &one
+			current[i] = new(*string)
 		}
 
 		if err := rows.Scan(current...); err != nil {
 			return EmptyResultSet, err
 		}
 
-		datas = append(datas, current)
+		for _, one := range current {
+			var v *string
+			if one == nil {
+				v = nil
+			} else {
+				vv := one.(**string)
+				if vv == nil {
+					v = nil
+				} else {
+					v = *vv
+				}
+			}
+
+			data = append(data, v)
+		}
+
+		datas = append(datas, data)
 	}
 
 	return ResultSet{data: datas, metaData: meta, columnCount: len(column)}, nil
@@ -558,7 +575,7 @@ var EmptyResultSet = ResultSet{}
 
 type ResultSet struct {
 	metaData    ResultSetMetaData
-	data        [][]any
+	data        [][]*string
 	columnCount int
 }
 
@@ -570,23 +587,24 @@ func (rs *ResultSet) GetMeta() ResultSetMetaData {
 	return rs.metaData
 }
 
-func (rs *ResultSet) GetStringFromRaw(data any) (*string, error) {
-	var str string
+func (rs *ResultSet) GetStringFromRaw(data *string) (*string, error) {
+	//var str string
 
-	switch data.(type) {
-	case *string:
-		str = *data.(*string)
-	case **string:
-		if *data.(**string) == nil {
-			return nil, nil
-		}
+	//switch data.(type) {
+	//case *string:
+	//	str = *data.(*string)
+	//case **string:
+	//	if *data.(**string) == nil {
+	//		return nil, nil
+	//	}
+	//
+	//	str = **data.(**string)
+	//default:
+	//	return nil, ParseColumnError
+	//}
 
-		str = **data.(**string)
-	default:
-		return nil, ParseColumnError
-	}
-
-	return &str, nil
+	//return &str, nil
+	return data, nil
 }
 
 func (rs *ResultSet) GetInt(idx int, column int) (*int64, error) {
@@ -844,21 +862,10 @@ func (rs *ResultSet) GetBytesByName(idx int, columnName string) ([]byte, error) 
 	return rs.GetBytes(idx, column)
 }
 
-func (rs *ResultSet) Get(idx, column int) ([]any, error) {
+func (rs *ResultSet) Get(idx int) ([]*string, error) {
 	if idx >= rs.Length() || idx < 0 {
 		return nil, ArrayOfIndexError
 	}
 
 	return rs.data[idx], nil
-}
-
-func (rs *ResultSet) GetByName(idx int, columnName string) ([]any, error) {
-
-	column, ok := rs.metaData.columnName[columnName]
-
-	if !ok {
-		return nil, UnknownColumnError
-	}
-
-	return rs.Get(idx, column)
 }
