@@ -20,7 +20,7 @@ import (
 * 创建日期 : 2022/5/11 17:58
 * 修改历史 : 1. [2022/5/11 17:58] 创建文件 by LongYong
 */
-var Db *sql.DB
+var dbPlus DBPlus
 
 func init() {
 	db, err := sql.Open("mysql", "root:123456@tcp(192.168.56.101:3306)/demo")
@@ -29,34 +29,47 @@ func init() {
 		panic("Open database error:" + err.Error())
 	}
 
-	Db = db
-	Db.SetConnMaxLifetime(10 * time.Minute)
-	Db.SetMaxOpenConns(15)
-	Db.SetConnMaxIdleTime(10 * time.Minute)
-	Db.SetMaxIdleConns(9)
-	fmt.Sprintf("Database : %+v\n", Db.Stats())
+	db.SetConnMaxLifetime(10 * time.Minute)
+	db.SetMaxOpenConns(15)
+	db.SetConnMaxIdleTime(10 * time.Minute)
+	db.SetMaxIdleConns(9)
+
+	fmt.Sprintf("Database : %+v\n", db.Stats())
+
+	dbPlus = DBPlus{DB: db}
 
 }
 
 func TestSQLDB(t *testing.T) {
-	rs, err := QueryResultSet(Db, "select * from sys_menu")
+	rs, err := dbPlus.QueryResultSet("select * from sys_menu limit 0,3")
 
 	if err != nil {
-		fmt.Printf("Query error: %v\n", err)
+		panic("Query error: " + err.Error())
 	}
 
 	fmt.Printf("%+v %+v \n", rs.GetMeta().GetColumns(), rs.GetMeta().GetColumnTypes())
+	fmt.Printf("%+v \n", rs.Length())
 
-	for rs.Next() {
-		fmt.Printf("%v %v %v %v %v %v \n", ptr2Data(rs.GetTimeByName("create_time", "2006-01-02 15:04:05")), ptr2Data(rs.GetIntByName("visible")), ptr2Data(rs.GetInt(1)), ptr2Data(rs.GetBoolByName("status")),
-			ptr2Data(rs.GetStringByName("perms")), ptr2Data(rs.GetStringByName("menu_name")))
+	for idx := 0; idx < rs.Length(); idx++ {
+		fmt.Printf("%v %v %v %v %v %v \n",
+			ptr2Data(rs.GetTimeByName(idx, "create_time", "2006-01-02 15:04:05")),
+			ptr2Data(rs.GetIntByName(idx, "visible")),
+			ptr2Data(rs.GetInt(idx, 1)),
+			ptr2Data(rs.GetBoolByName(idx, "status")),
+			ptr2Data(rs.GetStringByName(idx, "perms")),
+			ptr2Data(rs.GetStringByName(idx, "menu_name")))
 	}
 
 	fmt.Println("END")
 	time.Sleep(time.Second)
 }
 
-func ptr2Data(d any) any {
+func ptr2Data(d any, err error) any {
+
+	if err != nil {
+		panic(err)
+	}
+
 	if d == nil {
 		return nil
 	}
