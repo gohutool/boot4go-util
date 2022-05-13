@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 /**
@@ -423,6 +424,16 @@ func GetInt(s string) (int64, error) {
 
 }
 
+func GetInt2(s string, defaultValue int64) int64 {
+
+	if rtn, err := strconv.ParseInt(s, 10, 64); err == nil {
+		return rtn
+	} else {
+		return defaultValue
+	}
+
+}
+
 func GetUint(s string) (uint64, error) {
 
 	if rtn, err := strconv.ParseUint(s, 10, 64); err == nil {
@@ -432,12 +443,33 @@ func GetUint(s string) (uint64, error) {
 	}
 
 }
+
+func GetUint2(s string, defaultValue uint64) uint64 {
+
+	if rtn, err := strconv.ParseUint(s, 10, 64); err == nil {
+		return rtn
+	} else {
+		return defaultValue
+	}
+
+}
+
 func GetFloat(s string) (float64, error) {
 
 	if rtn, err := strconv.ParseFloat(s, 10); err == nil {
 		return rtn, nil
 	} else {
 		return 0, err
+	}
+
+}
+
+func GetFloat2(s string, defaultValue float64) float64 {
+
+	if rtn, err := strconv.ParseFloat(s, 10); err == nil {
+		return rtn
+	} else {
+		return defaultValue
 	}
 
 }
@@ -461,4 +493,26 @@ func GetBool(s string) (bool, error) {
 			}
 		}
 	}
+}
+
+func GetBool2(s string, defaultValue bool) bool {
+	v, err := GetBool(s)
+
+	if err != nil {
+		return defaultValue
+	}
+
+	return v
+}
+
+func GetITime(s string, layout string, defaultValue *time.Time) *time.Time {
+
+	t, err := time.Parse(layout, s)
+
+	if err != nil {
+		return defaultValue
+	}
+
+	return &t
+
 }

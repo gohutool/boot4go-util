@@ -1,6 +1,8 @@
 package util4go
 
-import "strconv"
+import (
+	"strconv"
+)
 
 /**
 * golang-sample源代码，版权归锦翰科技（深圳）有限公司所有。
@@ -20,6 +22,10 @@ type Keyable interface {
 
 type Numeric interface {
 	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | complex64 | complex128
+}
+
+type DeString interface {
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | float32 | float64 | string
 }
 
 func Stream[T any](source []T, fn func(one T)) {
@@ -179,4 +185,20 @@ func Reverse[T any](source []T) []T {
 	}
 
 	return rtn
+}
+
+func GetMapValue[K Keyable, T any](m map[K]T, key K) T {
+	if v, ok := m[key]; ok {
+		return v
+	}
+
+	return nil
+}
+
+func GetMapValue2[K Keyable, T any](m map[K]T, key K, defaultValue T) T {
+	if v, ok := m[key]; ok {
+		return v
+	}
+
+	return defaultValue
 }

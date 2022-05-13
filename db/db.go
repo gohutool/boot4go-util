@@ -407,6 +407,30 @@ func (d *DBPlus) QueryCount(query string, args ...any) (int64, error) {
 	return *i, nil
 }
 
+func (d *DBPlus) QueryOne(query string, args ...any) (map[string]string, error) {
+	rs, err := d.QueryResultSet(query, args...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if rs.Length() == 0 {
+		return nil, nil
+	}
+
+	rtn := make(map[string]string)
+
+	for idx, column := range rs.metaData.column {
+		v := rs.data[0][idx]
+		if v != nil {
+			rtn[column] = v.(string)
+		}
+
+	}
+
+	return rtn, nil
+}
+
 func (d *DBPlus) QueryString(query string, args ...any) (*string, error) {
 	rs, err := d.QueryResultSet(query, args...)
 
