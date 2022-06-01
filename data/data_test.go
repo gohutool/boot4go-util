@@ -18,7 +18,7 @@ import (
 
 func TestNewLoopQueue(t *testing.T) {
 	size := 100
-	q := NewLoopQueue(size, 1)
+	q := NewLoopQueue[int](size)
 
 	t.Logf("IsEmpty : %v", q.IsEmpty())
 	t.Logf("Len : %v", q.Len())
@@ -45,7 +45,7 @@ func TestNewLoopQueue(t *testing.T) {
 
 func TestNewStack(t *testing.T) {
 	size := 100
-	q := NewStack(size, 1)
+	q := NewStack[int](size)
 
 	t.Logf("IsEmpty : %v", q.IsEmpty())
 	t.Logf("Len : %v", q.Len())

@@ -39,7 +39,7 @@ type loopQueue[T any] struct {
 	isFull bool
 }
 
-func NewLoopQueue[T any](size int, prototype T) *loopQueue[T] {
+func NewLoopQueue[T any](size int) *loopQueue[T] {
 	return &loopQueue[T]{
 		items: make([]*CacheUnit[T], size),
 		size:  size,

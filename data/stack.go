@@ -20,7 +20,7 @@ type stack[T any] struct {
 	size   int
 }
 
-func NewStack[T any](size int, prototype T) *stack[T] {
+func NewStack[T any](size int) *stack[T] {
 
 	return &stack[T]{
 		items: make([]*CacheUnit[T], 0, size),
