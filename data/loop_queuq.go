@@ -98,6 +98,16 @@ func (lq *loopQueue[T]) Insert(t *T) error {
 	return nil
 }
 
+func (lq *loopQueue[T]) Get() *T {
+	if lq.IsEmpty() {
+		return nil
+	}
+
+	w := lq.items[lq.head]
+
+	return w.obj
+}
+
 func (lq *loopQueue[T]) Detach() *T {
 	if lq.IsEmpty() {
 		return nil

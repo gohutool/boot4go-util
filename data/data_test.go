@@ -23,4 +23,49 @@ func TestNewLoopQueue(t *testing.T) {
 	t.Logf("IsEmpty : %v", q.IsEmpty())
 	t.Logf("Len : %v", q.Len())
 	t.Logf("Detach : %v", q.Detach())
+
+	var i = 1
+
+	q.Insert(&i)
+
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
+
+	o := q.Get()
+	t.Logf("Get : %v", *o)
+	*o = 11
+
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
+
+	t.Logf("Detach : %v", *q.Detach())
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
+}
+
+func TestNewStack(t *testing.T) {
+	size := 100
+	q := NewStack(size, 1)
+
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
+	t.Logf("Detach : %v", q.Detach())
+
+	var i = 1
+
+	q.Insert(&i)
+
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
+
+	o := q.Get()
+	t.Logf("Get : %v", *o)
+	*o = 11
+
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
+
+	t.Logf("Detach : %v", *q.Detach())
+	t.Logf("IsEmpty : %v", q.IsEmpty())
+	t.Logf("Len : %v", q.Len())
 }

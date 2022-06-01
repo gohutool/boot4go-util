@@ -45,6 +45,17 @@ func (s *stack[T]) Insert(t *T) error {
 	return nil
 }
 
+func (s *stack[T]) Get() *T {
+	l := s.Len()
+	if l == 0 {
+		return nil
+	}
+
+	w := s.items[l-1]
+
+	return w.obj
+}
+
 func (s *stack[T]) Detach() *T {
 	l := s.Len()
 	if l == 0 {
