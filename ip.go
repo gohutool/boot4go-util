@@ -155,7 +155,6 @@ func ParseURL(url string) (schema, host, query string, rtnErr error) {
 			return "", "", "", errors.New("parse error " + url)
 		}
 	}
-
 	return s, h, q, nil
 }
 
