@@ -147,7 +147,7 @@ type Pool struct {
 	calls       [steps]uint64
 	calibrating uint64
 
-	defaultSize uint64
+	DefaultSize uint64
 	maxSize     uint64
 
 	pool sync.Pool
@@ -172,7 +172,7 @@ func (p *Pool) Get() *ByteBuffer {
 		return v.(*ByteBuffer)
 	}
 	return &ByteBuffer{
-		B: make([]byte, 0, atomic.LoadUint64(&p.defaultSize)),
+		B: make([]byte, 0, atomic.LoadUint64(&p.DefaultSize)),
 	}
 }
 
@@ -236,7 +236,7 @@ func (p *Pool) calibrate() {
 		}
 	}
 
-	atomic.StoreUint64(&p.defaultSize, defaultSize)
+	atomic.StoreUint64(&p.DefaultSize, defaultSize)
 	atomic.StoreUint64(&p.maxSize, maxSize)
 
 	atomic.StoreUint64(&p.calibrating, 0)
