@@ -98,11 +98,22 @@ func (b *ByteBuffer) Flip(n int) (rtn []byte) {
 	}
 }
 
-func (b *ByteBuffer) Compact(w io.Writer) (int64, error) {
-	n, err := w.Write(b.B)
-	b.B = b.B[n:]
-	return int64(n), err
+func (b *ByteBuffer) Compact(w io.Writer, nwrite int) (int64, error) {
+	if nwrite <= 0 {
+		n, err := w.Write(b.B)
+		b.B = b.B[n:]
+		return int64(n), err
+	} else {
+		len := len(b.B)
+		if len < nwrite {
+			nwrite = len
+		}
+		bs := b.B[:nwrite]
+		n, err := w.Write(bs)
+		b.B = b.B[n:]
+		return int64(n), err
 
+	}
 }
 
 // Bytes returns b.B, i.e. all the bytes accumulated in the buffer.

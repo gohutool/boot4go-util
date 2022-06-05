@@ -229,7 +229,17 @@ func TestPeek(t *testing.T) {
 	printSlice(s2)
 	printSlice(buf.Bytes())
 
-	buf.Compact(os.Stdout)
+	var n int64
+	n, _ = buf.Compact(os.Stdout, 0)
+	fmt.Printf(" %v\n", n)
+	fmt.Println()
+
+	printSlice(buf.Bytes())
+
+	buf.Write(s)
+	printSlice(buf.Bytes())
+	n, _ = buf.Compact(os.Stdout, 20)
+	fmt.Printf(" %v\n", n)
 	printSlice(buf.Bytes())
 
 	//s2[100] = '2'
@@ -237,7 +247,7 @@ func TestPeek(t *testing.T) {
 }
 
 func printSlice(b []byte) {
-	fmt.Printf("Contents %v Length: %v  Capcity : %v \n ", string(b), len(b), cap(b))
+	fmt.Printf("Contents %v Length: %v  Capcity : %v \n", string(b), len(b), cap(b))
 }
 
 func TestPoolCalibrate(t *testing.T) {
