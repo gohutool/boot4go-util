@@ -42,7 +42,7 @@ func TestByteBufferReadFrom(t *testing.T) {
 	prefixLen := int64(len(prefix))
 	expectedN := int64(len(expectedS))
 
-	var bb byteBuffer
+	var bb ByteBuffer
 	bb.WriteString(prefix)
 
 	rf := (io.ReaderFrom)(&bb)
@@ -58,13 +58,13 @@ func TestByteBufferReadFrom(t *testing.T) {
 		bbLen := int64(bb.Len())
 		expectedLen := prefixLen + int64(i+1)*expectedN
 		if bbLen != expectedLen {
-			t.Fatalf("unexpected byteBuffer length: %d. Expecting %d", bbLen, expectedLen)
+			t.Fatalf("unexpected ByteBuffer length: %d. Expecting %d", bbLen, expectedLen)
 		}
 		for j := 0; j < i; j++ {
 			start := prefixLen + int64(j)*expectedN
 			b := bb.B[start : start+expectedN]
 			if string(b) != expectedS {
-				t.Fatalf("unexpected byteBuffer contents: %q. Expecting %q", b, expectedS)
+				t.Fatalf("unexpected ByteBuffer contents: %q. Expecting %q", b, expectedS)
 			}
 		}
 	}
@@ -72,7 +72,7 @@ func TestByteBufferReadFrom(t *testing.T) {
 
 func TestByteBufferWriteTo(t *testing.T) {
 	expectedS := "foobarbaz"
-	var bb byteBuffer
+	var bb ByteBuffer
 	bb.WriteString(expectedS[:3])
 	bb.WriteString(expectedS[3:])
 
@@ -168,7 +168,7 @@ func TestByteBufferGetStringConcurrent(t *testing.T) {
 func BenchmarkByteBufferWrite(b *testing.B) {
 	s := []byte("foobarbaz")
 	b.RunParallel(func(pb *testing.PB) {
-		var buf byteBuffer
+		var buf ByteBuffer
 		for pb.Next() {
 			for i := 0; i < 100; i++ {
 				buf.Write(s)
@@ -217,7 +217,7 @@ func testIndex(t *testing.T, n, expectedIdx int) {
 
 func TestPeek(t *testing.T) {
 	s := []byte("foobarbaz")
-	var buf byteBuffer
+	var buf ByteBuffer
 
 	buf.Write(s)
 
