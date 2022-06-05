@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 )
@@ -41,7 +42,7 @@ func TestByteBufferReadFrom(t *testing.T) {
 	prefixLen := int64(len(prefix))
 	expectedN := int64(len(expectedS))
 
-	var bb ByteBuffer
+	var bb byteBuffer
 	bb.WriteString(prefix)
 
 	rf := (io.ReaderFrom)(&bb)
@@ -71,7 +72,7 @@ func TestByteBufferReadFrom(t *testing.T) {
 
 func TestByteBufferWriteTo(t *testing.T) {
 	expectedS := "foobarbaz"
-	var bb ByteBuffer
+	var bb byteBuffer
 	bb.WriteString(expectedS[:3])
 	bb.WriteString(expectedS[3:])
 
@@ -167,7 +168,7 @@ func TestByteBufferGetStringConcurrent(t *testing.T) {
 func BenchmarkByteBufferWrite(b *testing.B) {
 	s := []byte("foobarbaz")
 	b.RunParallel(func(pb *testing.PB) {
-		var buf ByteBuffer
+		var buf byteBuffer
 		for pb.Next() {
 			for i := 0; i < 100; i++ {
 				buf.Write(s)
@@ -212,6 +213,31 @@ func testIndex(t *testing.T, n, expectedIdx int) {
 	if idx != expectedIdx {
 		t.Fatalf("unexpected idx for n=%d: %d. Expecting %d", n, idx, expectedIdx)
 	}
+}
+
+func TestPeek(t *testing.T) {
+	s := []byte("foobarbaz")
+	var buf byteBuffer
+
+	buf.Write(s)
+
+	printSlice(buf.Bytes())
+
+	s2 := buf.Flip(3)
+	buf.Write(s)
+
+	printSlice(s2)
+	printSlice(buf.Bytes())
+
+	buf.Compact(os.Stdout)
+	printSlice(buf.Bytes())
+
+	//s2[100] = '2'
+	//printSlice(s2)
+}
+
+func printSlice(b []byte) {
+	fmt.Printf("Contents %v Length: %v  Capcity : %v \n ", string(b), len(b), cap(b))
 }
 
 func TestPoolCalibrate(t *testing.T) {

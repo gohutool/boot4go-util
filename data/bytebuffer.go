@@ -1,10 +1,13 @@
 package data
 
 import (
+	"errors"
 	"io"
+	"reflect"
 	"sort"
 	"sync"
 	"sync/atomic"
+	"unsafe"
 )
 
 /**
@@ -19,29 +22,42 @@ import (
 * 修改历史 : 1. [2022/6/1 14:20] 创建文件 by LongYong
 */
 
-// ByteBuffer provides byte buffer, which can be used for minimizing
+// byteBuffer provides byte buffer, which can be used for minimizing
 // memory allocations.
 //
-// ByteBuffer may be used with functions appending data to the given []byte
+// byteBuffer may be used with functions appending data to the given []byte
 // slice. See example code for details.
 //
 // Use Get for obtaining an empty byte buffer.
-type ByteBuffer struct {
+
+var (
+	MaxBytesLimit = errors.New("Max bytes limit of bytebufffer")
+)
+
+type byteBuffer struct {
 
 	// B is a byte buffer to use in append-like workloads.
 	// See example code for details.
-	B []byte
+	B       []byte
+	maxSize uint
+}
+
+func NewByteBuffer(b []byte, maxSize uint) *byteBuffer {
+	return &byteBuffer{
+		B:       b,
+		maxSize: maxSize,
+	}
 }
 
 // Len returns the size of the byte buffer.
-func (b *ByteBuffer) Len() int {
+func (b *byteBuffer) Len() int {
 	return len(b.B)
 }
 
 // ReadFrom implements io.ReaderFrom.
 //
 // The function appends all the data read from r to b.
-func (b *ByteBuffer) ReadFrom(r io.Reader) (int64, error) {
+func (b *byteBuffer) ReadFrom(r io.Reader) (int64, error) {
 	p := b.B
 	nStart := int64(len(p))
 	nMax := int64(cap(p))
@@ -55,6 +71,9 @@ func (b *ByteBuffer) ReadFrom(r io.Reader) (int64, error) {
 	for {
 		if n == nMax {
 			nMax *= 2
+			if b.maxSize > 0 && int64(b.maxSize) < nMax {
+				return n, MaxBytesLimit
+			}
 			bNew := make([]byte, nMax)
 			copy(bNew, p)
 			p = bNew
@@ -73,20 +92,43 @@ func (b *ByteBuffer) ReadFrom(r io.Reader) (int64, error) {
 }
 
 // WriteTo implements io.WriterTo.
-func (b *ByteBuffer) WriteTo(w io.Writer) (int64, error) {
+func (b *byteBuffer) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(b.B)
 	return int64(n), err
+}
+
+func (b *byteBuffer) Flip(n int) (rtn []byte) {
+	if len(b.B) < n {
+		rtn = b.B[0:len(b.B)]
+		b.B = b.B[:0]
+		return
+	} else {
+		rtn = b.B[0:n]
+		b.B = b.B[n:]
+		return
+	}
+}
+
+func (b *byteBuffer) Compact(w io.Writer) (int64, error) {
+	n, err := w.Write(b.B)
+	b.B = b.B[n:]
+	return int64(n), err
+
 }
 
 // Bytes returns b.B, i.e. all the bytes accumulated in the buffer.
 //
 // The purpose of this function is bytes.Buffer compatibility.
-func (b *ByteBuffer) Bytes() []byte {
+func (b *byteBuffer) Bytes() []byte {
 	return b.B
 }
 
-// Write implements io.Writer - it appends p to ByteBuffer.B
-func (b *ByteBuffer) Write(p []byte) (int, error) {
+// Write implements io.Writer - it appends p to byteBuffer.B
+func (b *byteBuffer) Write(p []byte) (int, error) {
+	if b.maxSize > 0 && b.maxSize < uint(len(b.B)+len(p)) {
+		return 0, MaxBytesLimit
+	}
+
 	b.B = append(b.B, p...)
 	return len(p), nil
 }
@@ -96,34 +138,40 @@ func (b *ByteBuffer) Write(p []byte) (int, error) {
 // The purpose of this function is bytes.Buffer compatibility.
 //
 // The function always returns nil.
-func (b *ByteBuffer) WriteByte(c byte) error {
+func (b *byteBuffer) WriteByte(c byte) error {
+	if b.maxSize > 0 && b.maxSize < uint(len(b.B)+1) {
+		return MaxBytesLimit
+	}
 	b.B = append(b.B, c)
 	return nil
 }
 
-// WriteString appends s to ByteBuffer.B.
-func (b *ByteBuffer) WriteString(s string) (int, error) {
+// WriteString appends s to byteBuffer.B.
+func (b *byteBuffer) WriteString(s string) (int, error) {
+	if b.maxSize > 0 && b.maxSize < uint(len(b.B)+len(s)) {
+		return 0, MaxBytesLimit
+	}
 	b.B = append(b.B, s...)
 	return len(s), nil
 }
 
-// Set sets ByteBuffer.B to p.
-func (b *ByteBuffer) Set(p []byte) {
+// Set sets byteBuffer.B to p.
+func (b *byteBuffer) Set(p []byte) {
 	b.B = append(b.B[:0], p...)
 }
 
-// SetString sets ByteBuffer.B to s.
-func (b *ByteBuffer) SetString(s string) {
+// SetString sets byteBuffer.B to s.
+func (b *byteBuffer) SetString(s string) {
 	b.B = append(b.B[:0], s...)
 }
 
-// String returns string representation of ByteBuffer.B.
-func (b *ByteBuffer) String() string {
+// String returns string representation of byteBuffer.B.
+func (b *byteBuffer) String() string {
 	return string(b.B)
 }
 
-// Reset makes ByteBuffer.B empty.
-func (b *ByteBuffer) Reset() {
+// Reset makes byteBuffer.B empty.
+func (b *byteBuffer) Reset() {
 	b.B = b.B[:0]
 }
 
@@ -150,7 +198,8 @@ type Pool struct {
 	DefaultSize uint64
 	maxSize     uint64
 
-	pool sync.Pool
+	pool          sync.Pool
+	BufferMaxSize uint
 }
 
 var defaultPool Pool
@@ -160,27 +209,27 @@ var defaultPool Pool
 // Got byte buffer may be returned to the pool via Put call.
 // This reduces the number of memory allocations required for byte buffer
 // management.
-func Get() *ByteBuffer { return defaultPool.Get() }
+func Get() *byteBuffer { return defaultPool.Get() }
 
 // Get returns new byte buffer with zero length.
 //
 // The byte buffer may be returned to the pool via Put after the use
 // in order to minimize GC overhead.
-func (p *Pool) Get() *ByteBuffer {
+func (p *Pool) Get() *byteBuffer {
 	v := p.pool.Get()
 	if v != nil {
-		return v.(*ByteBuffer)
+		return v.(*byteBuffer)
 	}
-	return &ByteBuffer{
+	return &byteBuffer{
 		B: make([]byte, 0, atomic.LoadUint64(&p.DefaultSize)),
 	}
 }
 
 // Put returns byte buffer to the pool.
 //
-// ByteBuffer.B mustn't be touched after returning it to the pool.
+// byteBuffer.B mustn't be touched after returning it to the pool.
 // Otherwise, data races will occur.
-func Put(b *ByteBuffer) {
+func Put(b *byteBuffer) {
 	if b != nil {
 		defaultPool.Put(b)
 	}
@@ -189,7 +238,7 @@ func Put(b *ByteBuffer) {
 // Put releases byte buffer obtained via Get to the pool.
 //
 // The buffer mustn't be accessed after returning to the pool.
-func (p *Pool) Put(b *ByteBuffer) {
+func (p *Pool) Put(b *byteBuffer) {
 	idx := index(len(b.B))
 
 	if atomic.AddUint64(&p.calls[idx], 1) > calibrateCallsThreshold {
@@ -273,4 +322,20 @@ func index(n int) int {
 		idx = steps - 1
 	}
 	return idx
+}
+
+//Byte2String []byte -> string
+func Bytes2String(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+
+//String2Bytes string -> []byte
+func String2Bytes(s string) []byte {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := reflect.SliceHeader{
+		Data: sh.Data,
+		Len:  sh.Len,
+		Cap:  sh.Len,
+	}
+	return *(*[]byte)(unsafe.Pointer(&bh))
 }
