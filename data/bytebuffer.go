@@ -38,15 +38,7 @@ type ByteBuffer struct {
 
 	// B is a byte buffer to use in append-like workloads.
 	// See example code for details.
-	B       []byte
-	maxSize uint
-}
-
-func NewByteBuffer(b []byte, maxSize uint) *ByteBuffer {
-	return &ByteBuffer{
-		B:       b,
-		maxSize: maxSize,
-	}
+	B []byte
 }
 
 // Len returns the size of the byte buffer.
@@ -71,9 +63,6 @@ func (b *ByteBuffer) ReadFrom(r io.Reader) (int64, error) {
 	for {
 		if n == nMax {
 			nMax *= 2
-			if b.maxSize > 0 && int64(b.maxSize) < nMax {
-				return n, MaxBytesLimit
-			}
 			bNew := make([]byte, nMax)
 			copy(bNew, p)
 			p = bNew
@@ -125,10 +114,6 @@ func (b *ByteBuffer) Bytes() []byte {
 
 // Write implements io.Writer - it appends p to ByteBuffer.B
 func (b *ByteBuffer) Write(p []byte) (int, error) {
-	if b.maxSize > 0 && b.maxSize < uint(len(b.B)+len(p)) {
-		return 0, MaxBytesLimit
-	}
-
 	b.B = append(b.B, p...)
 	return len(p), nil
 }
@@ -139,18 +124,12 @@ func (b *ByteBuffer) Write(p []byte) (int, error) {
 //
 // The function always returns nil.
 func (b *ByteBuffer) WriteByte(c byte) error {
-	if b.maxSize > 0 && b.maxSize < uint(len(b.B)+1) {
-		return MaxBytesLimit
-	}
 	b.B = append(b.B, c)
 	return nil
 }
 
 // WriteString appends s to ByteBuffer.B.
 func (b *ByteBuffer) WriteString(s string) (int, error) {
-	if b.maxSize > 0 && b.maxSize < uint(len(b.B)+len(s)) {
-		return 0, MaxBytesLimit
-	}
 	b.B = append(b.B, s...)
 	return len(s), nil
 }
@@ -220,10 +199,7 @@ func (p *Pool) Get() *ByteBuffer {
 	if v != nil {
 		return v.(*ByteBuffer)
 	}
-	return &ByteBuffer{
-		B:       make([]byte, 0, atomic.LoadUint64(&p.DefaultSize)),
-		maxSize: p.BufferMaxSize,
-	}
+	return &ByteBuffer{B: make([]byte, 0, atomic.LoadUint64(&p.DefaultSize))}
 }
 
 // Put returns byte buffer to the pool.
