@@ -1,6 +1,8 @@
 package util4go
 
 import (
+	"bytes"
+	"fmt"
 	"strconv"
 )
 
@@ -187,6 +189,10 @@ func Reverse[T any](source []T) []T {
 	return rtn
 }
 
+func PrintSlice[T any](b []T) {
+	fmt.Printf("Length: %v  Capcity : %v \n", len(b), cap(b))
+}
+
 func GetMapValue[K Keyable, T any](m map[K]T, key K) T {
 	if v, ok := m[key]; ok {
 		return v
@@ -203,4 +209,44 @@ func GetMapValue2[K Keyable, T any](m map[K]T, key K, defaultValue T) T {
 	}
 
 	return defaultValue
+}
+
+func StartsWith(s []byte, target []byte) bool {
+	s1 := len(s)
+	t1 := len(target)
+	if s1 == 0 || t1 == 0 {
+		return false
+	}
+
+	if t1 > s1 {
+		return false
+	}
+
+	idx := bytes.Index(s, target)
+
+	if idx == 0 {
+		return true
+	}
+
+	return false
+}
+
+func EndsWith(s []byte, target []byte) bool {
+	s1 := len(s)
+	t1 := len(target)
+	if s1 == 0 || t1 == 0 {
+		return false
+	}
+
+	if t1 > s1 {
+		return false
+	}
+
+	idx := bytes.Index(s, target)
+
+	if idx == s1-t1 {
+		return true
+	}
+
+	return false
 }

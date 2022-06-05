@@ -56,3 +56,21 @@ func TestArrayRemoveAt(t *testing.T) {
 func println(r []rune) {
 	fmt.Println(string(r))
 }
+
+func TestStartWith(t *testing.T) {
+	b := []byte("abcdefg")
+	PrintSlice(b)
+
+	s := []byte("abc")
+	PrintSlice(s)
+
+	fmt.Printf("%v\n", StartsWith(b, s))
+	fmt.Printf("%v\n", StartsWith(s, b))
+
+	e := []byte("efg")
+	PrintSlice(e)
+
+	fmt.Printf("%v\n", StartsWith(b, e))
+	fmt.Printf("%v\n", EndsWith(b, e))
+	fmt.Printf("%v\n", EndsWith(e, b))
+}
