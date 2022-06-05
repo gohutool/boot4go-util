@@ -221,7 +221,8 @@ func (p *Pool) Get() *byteBuffer {
 		return v.(*byteBuffer)
 	}
 	return &byteBuffer{
-		B: make([]byte, 0, atomic.LoadUint64(&p.DefaultSize)),
+		B:       make([]byte, 0, atomic.LoadUint64(&p.DefaultSize)),
+		maxSize: p.BufferMaxSize,
 	}
 }
 
