@@ -32,8 +32,8 @@ func IntToBytes[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | u
 }
 
 // BytesToInt 将以Big端存储的长为1/2字节的数转化成int类型的数
-func BytesToInt[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](bytesArr []byte, data *T) T {
-	return BytesToIntEndian(bytesArr, data, BigEndian)
+func BytesToInt[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](bytesArr []byte) T {
+	return BytesToIntEndian[T](bytesArr, BigEndian)
 }
 
 // IntToBytesEndian 将int类型的数转化为字节并以Big端存储
@@ -50,14 +50,15 @@ func IntToBytesEndian[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint
 
 // BytesToIntEndian 将以Big端存储的长为1/2字节的数转化成int类型的数
 
-func BytesToIntEndian[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](bytesArr []byte, data *T, endian Endian) T {
+func BytesToIntEndian[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](bytesArr []byte, endian Endian) T {
 	buf := bytes.NewBuffer(bytesArr)
+	var data T
 	if endian == BigEndian {
-		binary.Read(buf, binary.BigEndian, data)
+		binary.Read(buf, binary.BigEndian, &data)
 	} else {
-		binary.Read(buf, binary.LittleEndian, data)
+		binary.Read(buf, binary.LittleEndian, &data)
 	}
-	return T(*data)
+	return data
 }
 
 // BytesToString converts byte slice to a string without memory allocation.

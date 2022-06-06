@@ -45,7 +45,6 @@ func TestByte2(t *testing.T) {
 
 func printByte2Convert[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](a T) {
 	b := IntToBytes(a)
-	var c T = 0
-	d := BytesToInt(b, &c)
-	fmt.Printf("IntToBytes(%v)=%v  BytesToInt(%v, &c)=%v c=%v\n", a, b, b, d, c)
+	d := BytesToInt[T](b)
+	fmt.Printf("IntToBytes(%v)=%v  BytesToInt(%v, &c)=%v c=%v\n", a, b, b, d, d)
 }
