@@ -38,13 +38,31 @@ func TestByte(t *testing.T) {
 }
 
 func TestByte2(t *testing.T) {
+	printByte2IntConvert[int]([]byte{0, 12, 255, 255})
+	printByte2IntConvert[int64]([]byte{11, 23, 255, 255, 255})
+	printByte2IntConvert[int]([]byte{255, 255, 255, 255})
+	printByte2IntConvert[byte]([]byte{255, 12})
+}
+func TestByte3(t *testing.T) {
+	var v uint8 = 255
 
-	var i8 uint8 = 255
-	printByte2Convert(i8)
+	fmt.Println(v)
+
+	fmt.Println(int8(v))
 }
 
 func printByte2Convert[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](a T) {
 	b := IntToBytes(a)
+
 	d := BytesToInt[T](b)
+
 	fmt.Printf("IntToBytes(%v)=%v  BytesToInt(%v, &c)=%v c=%v\n", a, b, b, d, d)
+}
+
+func printByte2IntConvert[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64](b []byte) {
+	d := BytesToInt[T](b)
+
+	b2 := IntToBytes(d)
+
+	fmt.Printf("IntToBytes(%v)=%v  BytesToInt(%v, &c)=%v c=%v\n", d, b2, b, d, d)
 }
