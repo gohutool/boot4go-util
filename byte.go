@@ -3,7 +3,9 @@ package util4go
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"reflect"
+	"unicode/utf8"
 	"unsafe"
 )
 
@@ -80,4 +82,65 @@ func StringToBytes(s string) (b []byte) {
 
 	bh.Data, bh.Len, bh.Cap = sh.Data, sh.Len, sh.Len
 	return b
+}
+
+var ArrayOverFlow = errors.New("ArrayOverFlow")
+
+func DecodeUint32(b []byte, start int) (uint32, error) {
+	if len(b)-start < 4 {
+		return 0, ArrayOverFlow
+	}
+	_ = b[start+3] // bounds check hint to compiler; see golang.org/issue/14808
+	return uint32(b[start+3]) | uint32(b[start+2])<<8 | uint32(b[start+1])<<16 | uint32(b[start+0])<<24, nil
+}
+
+func EncodeUint32(i uint32) []byte {
+	return []byte{byte(i >> 24), byte(i >> 16), byte(i >> 8), byte(i)}
+}
+
+func IsUTF8(p []byte) bool {
+
+	for {
+		if len(p) == 0 {
+			return true
+		}
+		ru, size := utf8.DecodeRune(p)
+		if ru >= '\u0000' && ru <= '\u001f' {
+			return false
+		}
+		if ru >= '\u007f' && ru <= '\u009f' {
+			return false
+		}
+		if ru == utf8.RuneError {
+			return false
+		}
+		if !utf8.ValidRune(ru) {
+			return false
+		}
+		if size == 0 {
+			return true
+		}
+		p = p[size:]
+	}
+}
+
+func DecodeByte(b []byte, start int) (byte, error) {
+	if len(b)-start < 1 {
+		return 0, ArrayOverFlow
+	}
+
+	return b[start], nil
+}
+
+func DecodeUint16(b []byte, start int) (uint16, error) {
+	if len(b)-start < 2 {
+		return 0, ArrayOverFlow
+	}
+
+	_ = b[start+1] // bounds check hint to compiler; see golang.org/issue/14808
+	return uint16(b[start+1]) | uint16(b[start+0])<<8, nil
+}
+
+func EncodeUint16(i uint16) []byte {
+	return []byte{byte(i >> 8), byte(i)}
 }
