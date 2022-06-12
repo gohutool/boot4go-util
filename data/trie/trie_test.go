@@ -34,6 +34,16 @@ func TestTrie(t *testing.T) {
 
 	r = trie.GetMatchedData("/a/+")
 	printSample(r)
+
+	r = trie.GetMatchedData("#")
+	printSample(r)
+
+	trie.MatchKey([]string{"#"}, OnMatch[Sample](func(t *Sample) bool {
+		fmt.Printf("%+v ", *t)
+		return true
+	}))
+
+	fmt.Println()
 }
 
 func printSample(l []*Sample) {
