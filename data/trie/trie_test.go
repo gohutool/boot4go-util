@@ -12,6 +12,11 @@ type Sample struct {
 func TestTrie(t *testing.T) {
 
 	trie := NewTrie[Sample]()
+
+	trie.AddData("a/#", (*Sample)(nil))
+	trie.AddData("a/b/#", (*Sample)(nil))
+	trie.AddData("a/c/#", (*Sample)(nil))
+
 	trie.AddData("a/b/c1", &Sample{ID: "a/b/c1"})
 	trie.AddData("a/c/c2", &Sample{ID: "a/c/c2"})
 	trie.AddData("a/d/c3", &Sample{ID: "a/d/c3"})

@@ -107,9 +107,7 @@ func (t *TrieNode[T]) GetMatchedData(filter string) []*T {
 
 // AddData add data
 func (t *TrieNode[T]) AddData(key string, data *T) error {
-	if strings.IndexByte(key, byte('#')) >= 0 || strings.IndexByte(key, byte('#')) >= 0 {
-		return InvalidString
-	}
+
 	keySlice := strings.Split(key, "/")
 	var pNode = t
 	for _, lv := range keySlice {
