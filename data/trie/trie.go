@@ -56,6 +56,12 @@ func (t *TrieNode[T]) Find(key string) *TrieNode[T] {
 
 type OnMatch[T any] func(t *T) bool
 
+// LoopKey walk through the tire and call the fn callback for each message witch match the key filter.
+func (t *TrieNode[T]) LoopKey(key string, fn OnMatch[T]) {
+	keySlice := strings.Split(key, "/")
+	t.MatchKey(keySlice, fn)
+}
+
 // MatchKey walk through the tire and call the fn callback for each message witch match the key filter.
 func (t *TrieNode[T]) MatchKey(keySlice []string, fn OnMatch[T]) {
 	endFlag := len(keySlice) == 1

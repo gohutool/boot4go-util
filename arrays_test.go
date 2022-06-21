@@ -74,3 +74,24 @@ func TestStartWith(t *testing.T) {
 	fmt.Printf("%v\n", EndsWith(b, e))
 	fmt.Printf("%v\n", EndsWith(e, b))
 }
+
+type SampleSlice[T any] []T
+
+func TestSample1(t *testing.T) {
+	var list SampleSlice[int]
+	list = make(SampleSlice[int], 2)
+
+	list[0] = 1
+	list[1] = 2
+
+	fmt.Printf("%d\n", list[0])
+	fmt.Printf("%d\n", list[1])
+}
+
+type SampleChan[T any] chan T
+
+type SampleMap[K comparable, V any] map[K]V
+
+func sample1() {
+
+}
