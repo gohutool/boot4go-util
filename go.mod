@@ -6,6 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gohutool/boot4go-fastjson v1.0.7
+	github.com/gohutool/log4go v1.0.2
 	github.com/valyala/fasthttp v1.36.0
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 )

@@ -6,6 +6,8 @@ github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfC
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/gohutool/boot4go-fastjson v1.0.7 h1:e3j3hUJIRVWpWq2G+jLySWgZJekXOobJEpeLihqKRlg=
 github.com/gohutool/boot4go-fastjson v1.0.7/go.mod h1:/c3bD9pdQhJKwTZfmzVP/RbB25m++8JsiR/Nb+6JaEE=
+github.com/gohutool/log4go v1.0.2 h1:iV8TkROQG+Cqvegg1zC5PPane1PAMwJ5vLFof9/1k8w=
+github.com/gohutool/log4go v1.0.2/go.mod h1:NNSgiNWEro9XhO3antf1DxcjnICKEPdOux7kMGn8dGA=
 github.com/klauspost/compress v1.15.0 h1:xqfchp4whNFxn5A4XFyyYtitiWI8Hy5EW59jEwcyL6U=
 github.com/klauspost/compress v1.15.0/go.mod h1:/3/Vjq9QcHkK5uEr5lBEmyoZ1iFhe47etQ6QUkpK6sk=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
