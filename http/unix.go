@@ -100,7 +100,7 @@ func copyHeader(ctx *fasthttp.RequestCtx, src http.Header) {
 	}
 }
 
-func WithHttpReverseUnixSocketProxy(uri string, query string, ctx *fasthttp.RequestCtx) (rtn error) {
+func WithHttpReverseUnixSocketProxy(unixPath string, uri string, query string, ctx *fasthttp.RequestCtx) (rtn error) {
 	defer func() {
 		if err := recover(); err != nil {
 			rtn = fmt.Errorf("%v", err)
@@ -134,7 +134,7 @@ func WithHttpReverseUnixSocketProxy(uri string, query string, ctx *fasthttp.Requ
 		return
 	}
 	u.Scheme = schema
-	unixProxyHandler := &unixHandler{}
+	unixProxyHandler := &unixHandler{UnixPath: unixPath}
 
 	Logger.Debug("Unix Req: host=%v uri=%v query=%v", host, uri, string(ctx.Request.URI().QueryString()))
 
@@ -144,6 +144,7 @@ func WithHttpReverseUnixSocketProxy(uri string, query string, ctx *fasthttp.Requ
 
 // unixHandler defines a handler holding the path to a socket under UNIX
 type unixHandler struct {
+	UnixPath string
 }
 
 // ServeHTTP implementation for unixHandler
