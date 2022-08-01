@@ -149,7 +149,7 @@ type unixHandler struct {
 
 // ServeHTTP implementation for unixHandler
 func (h *unixHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	conn, err := net.Dial("unix", "/var/run/docker.sock")
+	conn, err := net.Dial("unix", h.UnixPath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		Logger.Debug("Unix Dail error: %v", err)
