@@ -30,7 +30,7 @@ type EchoWSRequestHandler struct {
 	Upgrader Upgrader
 }
 
-func (h *EchoWSRequestHandler) handle(ctx *fasthttp.RequestCtx) error {
+func (h *EchoWSRequestHandler) Handle(ctx *fasthttp.RequestCtx) error {
 	err := h.Upgrader.Upgrade(ctx, func(ws *websocket.Conn) {
 		defer ws.Close()
 		for {
